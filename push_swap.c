@@ -6,7 +6,7 @@
 /*   By: jmacmill <jmacmill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/04 20:12:12 by jmacmill          #+#    #+#             */
-/*   Updated: 2021/10/04 22:03:06 by jmacmill         ###   ########.fr       */
+/*   Updated: 2021/10/04 22:18:06 by jmacmill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ int	ft_atoi(const char *str)
 	return (result * sign);
 }
 
-void	get_error(t_stack *a, t_stack *b)
+void	get_error()
 {
 	write(2, "Error\n", 6);
 	exit(0);
@@ -90,7 +90,27 @@ void	init_stack(t_stack *a, int num)
 	}
 }
 
-void	check_errors(int argc, char **argv, t_stack *a, t_stack *b)
+int	ft_strchr_ps(char **str)
+{
+	int	i;
+	int	j;
+
+	i = 1;
+	while (str[i])
+	{
+		j = 0;
+		while (str[i][j])
+		{
+			if (str[i][j] >= 58 && str[i][j] <= 127)
+				return (0);
+			j++;
+		}
+		i++;
+	}
+	return (1);
+}
+
+void	check_errors(char **argv, t_stack *a)
 {
 	int			i;
 	long int	num;
@@ -100,27 +120,27 @@ void	check_errors(int argc, char **argv, t_stack *a, t_stack *b)
 	{
 		num = ft_atoi(argv[i]);
 		if (num > 2147483647 || num < -2147483648)
-			get_error(a, b);
+			get_error();
 		if (num < 0 || argv[i][0] == '+')
 		{
 			if (!ft_isdigit(argv[i][1]))
-				get_error(a, b);
+				get_error();
 		}
 		else if (!ft_isdigit(*argv[i]))
-			get_error(a, b);
-		if (!ft_ischar(argv[i]))
-			get_error(a, b);
+			get_error();
+		if (!ft_strchr_ps(argv))
+			get_error();
 		init_stack(a, num);
 		i++;
 	}
 }
 
-void	push_swap(int argc, char **argv, t_stack *a, t_stack *b)
+void	push_swap(char **argv, t_stack *a)
 {
-	check_errors(argc, argv, a, b);
-	check_duplicates();
-	check_sort();
-	algos();
+	check_errors(argv, a);
+	// check_duplicates();
+	// check_sort();
+	// algos();
 }
 
 int	main(int argc, char **argv)
@@ -131,6 +151,6 @@ int	main(int argc, char **argv)
 	a = NULL;
 	b = NULL;
 	if (argc > 2)
-		push_swap(argc, argv, a, b);
+		push_swap(argv, a);
 	return (0);
 }
