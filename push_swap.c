@@ -6,7 +6,7 @@
 /*   By: jmacmill <jmacmill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/04 20:12:12 by jmacmill          #+#    #+#             */
-/*   Updated: 2021/10/05 19:25:41 by jmacmill         ###   ########.fr       */
+/*   Updated: 2021/10/05 21:32:17 by jmacmill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,53 +66,31 @@ int	ft_ischar(char *str)
 	return (0);
 }
 
-t_stack	*init_stack(t_stack *a, int num)
+t_stack	*init_stack(t_list *my_list, int num)
 {
 	t_stack	*tmp;
 	void	*p;
 
-	if (a == NULL)
+	if (my_list->a == NULL)
 	{
-		a = (t_stack *)malloc(sizeof(t_stack));
-		a->value = num;
-		a->order = 0;
-		a->flag = 0;
-		a->next = a;
-		return (a);
+		my_list->a = (t_stack *)malloc(sizeof(t_stack));
+		my_list->a->value = num;
+		my_list->a->order = 0;
+		my_list->a->flag = 0;
+		my_list->a->next = my_list->a;
+		return (my_list->a);
 	}
 	else
 	{
 		tmp = (t_stack *)malloc(sizeof(t_stack));
-		p = a->next;
-		a->next = tmp;
+		p = my_list->a->next;
+		my_list->a->next = tmp;
 		tmp->value = num;
 		tmp->order = 0;
 		tmp->flag = 0;
 		tmp->next = p;
 	}
-	return (a);
-}
-
-
-
-int	ft_strchr_ps(char **str)
-{
-	int	i;
-	int	j;
-
-	i = 1;
-	while (str[i])
-	{
-		j = 0;
-		while (str[i][j])
-		{
-			if (str[i][j] >= 58 && str[i][j] <= 127)
-				return (0);
-			j++;
-		}
-		i++;
-	}
-	return (1);
+	return (my_list->a);
 }
 
 void	print_list(t_stack *a)
@@ -130,7 +108,7 @@ void	print_list(t_stack *a)
 		printf("next value: %d\n", head->next->value);
 }
 
-void	check_errors(int argc, char **argv, t_stack *a)
+void	check_errors(int argc, char **argv, t_list *my_list)
 {
 	int			i;
 	long int	num;
@@ -150,12 +128,12 @@ void	check_errors(int argc, char **argv, t_stack *a)
 			get_error();
 		if (!ft_ischar(argv[i]))
 			get_error();
-		a = init_stack(a, num);
+		my_list->a = init_stack(my_list, num);
 		i--;
 		if (i == 0)
-			a = a->next;
+			my_list->a = my_list->a->next;
 	}
-	print_list(a);
+	//print_list(a);
 }
 
 int		ft_check(t_stack *a, int value, int len)
@@ -173,40 +151,50 @@ int		ft_check(t_stack *a, int value, int len)
 	return (0);
 }
 
-void	check_duplicates(t_stack *a)
+void	check_duplicates(t_list *my_list)
 {
 	t_stack	*tmp;
 	int		len;
 
-	tmp = a;
+	tmp = my_list->a;
 	len = 0;
-	while (tmp->next != a)
+	while (tmp->next != my_list->a)
 	{
-		if (ft_check(a, tmp->value, len))
+		if (ft_check(my_list->a, tmp->value, len))
 			get_error();
 		tmp = tmp->next;
 		len++;
 	}
+	if (tmp->next == my_list->a)
+	{
+		if (ft_check(my_list->a, tmp->value, len))
+			get_error();
+	}
 }
 
-void	push_swap(int argc, char **argv, t_stack *a)
+void	list_init(t_list *mylist)
 {
-	check_errors(argc, argv, a);
-	check_duplicates(a);
+	mylist->a = NULL;
+	mylist->b = NULL;
+}
+
+void	push_swap(int argc, char **argv)
+{
+	t_list	*my_list;
+
+	my_list = (t_list *)malloc(sizeof(t_list));
+	list_init(my_list);
+	check_errors(argc, argv, my_list);
+	check_duplicates(my_list);
 	// check_sort();
 	// algos();
 }
 
-// int	main(int argc, char **argv)
-int	main()
+int	main(int argc, char **argv)
+// int	main()
 {
-	t_stack	*a;
-	t_stack	*b;
-
-	a = NULL;
-	b = NULL;
-	char *argv[4] = {"x", "1", "2", "3"};
+	// char *argv[4] = {"x", "1", "2", "2"};
 	if (argc > 2)
-		push_swap(argc, argv, a);
+		push_swap(argc, argv);
 	return (0);
 }

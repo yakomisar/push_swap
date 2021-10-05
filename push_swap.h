@@ -13,5 +13,10 @@ typedef struct s_stack
 
 }	t_stack;
 
+typedef struct s_list
+{
+	t_stack	*a;
+	t_stack	*b;
+}				t_list;
 
 #endif
