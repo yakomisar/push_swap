@@ -6,7 +6,7 @@
 /*   By: jmacmill <jmacmill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/04 20:12:12 by jmacmill          #+#    #+#             */
-/*   Updated: 2021/10/05 21:32:17 by jmacmill         ###   ########.fr       */
+/*   Updated: 2021/10/05 22:03:06 by jmacmill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,6 +151,12 @@ int		ft_check(t_stack *a, int value, int len)
 	return (0);
 }
 
+void	list_init(t_list *mylist)
+{
+	mylist->a = NULL;
+	mylist->b = NULL;
+}
+
 void	check_duplicates(t_list *my_list)
 {
 	t_stack	*tmp;
@@ -172,10 +178,20 @@ void	check_duplicates(t_list *my_list)
 	}
 }
 
-void	list_init(t_list *mylist)
+void	check_sort(t_list *my_list)
 {
-	mylist->a = NULL;
-	mylist->b = NULL;
+	t_stack	*tmp;
+	int		is_sorted;
+	
+	tmp = my_list->a;
+	is_sorted = 0;
+	while (tmp->next != my_list->a)
+	{
+		if (tmp->value > tmp->next->value)
+			is_sorted = 1;
+		tmp = tmp->next;
+	}
+	printf("%d", is_sorted);
 }
 
 void	push_swap(int argc, char **argv)
@@ -186,7 +202,7 @@ void	push_swap(int argc, char **argv)
 	list_init(my_list);
 	check_errors(argc, argv, my_list);
 	check_duplicates(my_list);
-	// check_sort();
+	check_sort(my_list);
 	// algos();
 }
 
