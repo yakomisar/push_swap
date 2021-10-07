@@ -6,7 +6,7 @@
 /*   By: jmacmill <jmacmill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/04 20:12:12 by jmacmill          #+#    #+#             */
-/*   Updated: 2021/10/05 22:03:06 by jmacmill         ###   ########.fr       */
+/*   Updated: 2021/10/07 19:33:26 by jmacmill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -300,6 +300,47 @@ void	get_position(int argc, t_list *my_list)
 	print_list_order(my_list->a);
 }
 
+void	ft_sa(t_list *my_list)
+{
+	int	tmp_value;
+	int	tmp_order;
+	int	tmp_flag;
+	
+	tmp_value = my_list->a->value;
+	tmp_order = my_list->a->order;
+	tmp_flag = my_list->a->flag;
+	my_list->a->value = my_list->a->next->value;
+	my_list->a->order = my_list->a->next->order;
+	my_list->a->flag = my_list->a->next->flag;
+	my_list->a->next->value = tmp_value;
+	my_list->a->next->order = tmp_value;
+	my_list->a->next->flag = tmp_value;
+	write(1, "sa\n", 3);
+}
+
+void	micro_algorithm(t_list *my_list)
+{
+	if (my_list->a->value > my_list->a->next->value)
+		ft_sa(my_list);	
+}
+
+void	algorithm(int argc, t_list *my_list)
+{
+	int	i;
+
+	i = argc - 1;
+	if (i == 2  )
+		micro_algorithm(my_list);
+	// else if (i == 3)
+	// 	mini_algorithm(my_list);
+	// else if (i == 4)
+	// 	medium_algorithm(my_list);
+	// else if (i == 5)
+	// 	above_algorithm(my_list);
+	// else if (i > 5)
+	// 	big_deal(my_list);
+}
+
 void	push_swap(int argc, char **argv)
 {
 	t_list	*my_list;
@@ -310,7 +351,7 @@ void	push_swap(int argc, char **argv)
 	check_duplicates(my_list);
 	check_sort(my_list);
 	get_position(argc, my_list);
-	// algos();
+	algorithm(argc, my_list);
 }
 
 int	main(int argc, char **argv)
