@@ -108,6 +108,19 @@ void	print_list(t_stack *a)
 		printf("next value: %d\n", head->next->value);
 }
 
+void	print_list_order(t_stack *a)
+{
+	t_stack *head;
+
+	head = a;
+	while (head->next != a)
+	{
+		printf("value: %d\n", head->order);
+		head = head->next;
+	}
+	printf("value: %d\n", head->order);
+}
+
 void	check_errors(int argc, char **argv, t_list *my_list)
 {
 	int			i;
@@ -178,20 +191,113 @@ void	check_duplicates(t_list *my_list)
 	}
 }
 
+void	quick_sort(int *arr, int first, int last)
+{
+	int	left;
+	int	right;
+	int	middle;
+	int tmp;
+
+	if (first < last)
+	{
+		left = first;
+		right = last;
+		middle = arr[(left + right) / 2];
+		while (left < right)
+		{
+			while (arr[left] < middle)
+				left++;
+			while (arr[right] > middle)
+				right--;
+			if (left <= right)
+			{
+				tmp = arr[left];
+				arr[left] = arr[right];
+				arr[right] = tmp;
+				left++;
+				right--;
+			}
+		}
+		quick_sort(arr, first, right);
+		quick_sort(arr, left, last);
+	}
+	return ;
+}
+
 void	check_sort(t_list *my_list)
 {
 	t_stack	*tmp;
 	int		is_sorted;
 	
 	tmp = my_list->a;
-	is_sorted = 0;
+	is_sorted = 1;
 	while (tmp->next != my_list->a)
 	{
 		if (tmp->value > tmp->next->value)
-			is_sorted = 1;
+			is_sorted = 0;
 		tmp = tmp->next;
 	}
-	printf("%d", is_sorted);
+	if (is_sorted)
+		printf("Заглушка список отсортирован.\n");
+}
+
+void	assign_order(int *arr, t_list *my_list)
+{
+	int	i;
+	t_stack	*a;
+
+	i = 0;
+	a = my_list->a;
+	while (a->next != my_list->a)
+	{
+		while (arr[i])
+		{
+			if (arr[i] == a->value)
+			{
+				a->order = i;
+				i = 0;
+				break ;
+			}
+			i++;
+		}
+		a = a->next;
+	}
+	if (a->next == my_list->a)
+	{
+		i = 0;
+		while (arr[i])
+		{
+			if (arr[i] == a->value)
+			{
+				a->order = i;
+				i = 0;
+				return ;
+			}
+			i++;
+		}
+	}
+}
+
+void	get_position(int argc, t_list *my_list)
+{
+	int	array[argc - 1];
+	int	i;
+	t_stack	*p;
+
+	i = 0;
+	p = my_list->a;
+	while (p->next != my_list->a)
+	{
+		array[i] = p->value;
+		p = p->next;
+		i++;
+	}
+	if (p->next == my_list->a)
+		array[i] = p->value;
+	i++;
+	quick_sort(array, 0, argc - 1);
+	assign_order(array, my_list);
+	print_list_order(my_list->a);
 }
 
 void	push_swap(int argc, char **argv)
@@ -203,6 +309,7 @@ void	push_swap(int argc, char **argv)
 	check_errors(argc, argv, my_list);
 	check_duplicates(my_list);
 	check_sort(my_list);
+	get_position(argc, my_list);
 	// algos();
 }
 
