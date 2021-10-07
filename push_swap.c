@@ -6,7 +6,7 @@
 /*   By: jmacmill <jmacmill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/04 20:12:12 by jmacmill          #+#    #+#             */
-/*   Updated: 2021/10/07 19:33:26 by jmacmill         ###   ########.fr       */
+/*   Updated: 2021/10/07 21:19:39 by jmacmill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -300,28 +300,83 @@ void	get_position(int argc, t_list *my_list)
 	print_list_order(my_list->a);
 }
 
-void	ft_sa(t_list *my_list)
+void	ft_sa(t_stack *a)
 {
 	int	tmp_value;
 	int	tmp_order;
 	int	tmp_flag;
+	t_stack	*tmp;
 	
-	tmp_value = my_list->a->value;
-	tmp_order = my_list->a->order;
-	tmp_flag = my_list->a->flag;
-	my_list->a->value = my_list->a->next->value;
-	my_list->a->order = my_list->a->next->order;
-	my_list->a->flag = my_list->a->next->flag;
-	my_list->a->next->value = tmp_value;
-	my_list->a->next->order = tmp_value;
-	my_list->a->next->flag = tmp_value;
+	tmp_value = a->value;
+	tmp_order = a->order;
+	tmp_flag = a->flag;
+	tmp = a->next;
+	a->value = a->next->value;
+	a->order = a->next->order;
+	a->flag = a->next->flag;
+	a->next = a->next->next;
+	a->next->value = tmp_value;
+	a->next->order = tmp_value;
+	a->next->flag = tmp_value;
+	a->next->next = tmp;
 	write(1, "sa\n", 3);
 }
 
-void	micro_algorithm(t_list *my_list)
+void	ft_ra(t_stack *a)
 {
-	if (my_list->a->value > my_list->a->next->value)
-		ft_sa(my_list);	
+	a = a->next;
+	write(1, "ra\n", 3);
+}
+
+void	ft_rb(t_stack *b)
+{
+	b = b->next;
+	write(1, "rb\n", 3);
+}
+
+void	ft_rr(t_stack *a, t_stack *b)
+{
+	ft_ra(a);
+	ft_rb(b);
+	write(1, "rr\n", 3);
+}
+
+void	ft_rra(t_stack *a)
+{
+	while (a->next != a)
+		a = a->next;
+	if (a->next == a)
+		a = a->next;
+	write(1, "rra\n", 4);
+}
+
+void	ft_rra(t_stack *b)
+{
+	while (b->next != b)
+		b = b->next;
+	if (b->next == b)
+		b = b->next;
+	write(1, "rrb\n", 4);
+}
+
+void	ft_rrr(t_stack *a, t_stack *b)
+{
+	ft_rra(a);
+	ft_rra(b);
+	write(1, "rrr\n", 4);
+}
+
+void	micro_algorithm(t_stack *a)
+{
+	if (a->value > a->next->value)
+		ft_sa(a);	
+}
+
+void	mini_algorithm(t_stack *a)
+{
+	if (a->next->value < a->value && a->next->value > a->next->next->value)
+		ft_sa(a);
+	
 }
 
 void	algorithm(int argc, t_list *my_list)
@@ -329,10 +384,10 @@ void	algorithm(int argc, t_list *my_list)
 	int	i;
 
 	i = argc - 1;
-	if (i == 2  )
-		micro_algorithm(my_list);
-	// else if (i == 3)
-	// 	mini_algorithm(my_list);
+	if (i == 2)
+		micro_algorithm(my_list->a);
+	else if (i == 3)
+		mini_algorithm(my_list->a);
 	// else if (i == 4)
 	// 	medium_algorithm(my_list);
 	// else if (i == 5)
