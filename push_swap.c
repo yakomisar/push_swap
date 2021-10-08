@@ -6,7 +6,7 @@
 /*   By: jmacmill <jmacmill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/04 20:12:12 by jmacmill          #+#    #+#             */
-/*   Updated: 2021/10/07 21:53:34 by jmacmill         ###   ########.fr       */
+/*   Updated: 2021/10/08 22:30:20 by jmacmill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,37 +191,24 @@ void	check_duplicates(t_list *my_list)
 	}
 }
 
-void	quick_sort(int *arr, int first, int last)
+void	quick_sort(int *arr, int len)
 {
-	int	left;
-	int	right;
-	int	middle;
-	int tmp;
+	long	tmp;
+	int		i;
 
-	if (first < last)
+	i = 0;
+	while (i < len - 1)
 	{
-		left = first;
-		right = last;
-		middle = arr[(left + right) / 2];
-		while (left < right)
+		if (arr[i] <= arr[i + 1])
+			i++;
+		else
 		{
-			while (arr[left] < middle)
-				left++;
-			while (arr[right] > middle)
-				right--;
-			if (left <= right)
-			{
-				tmp = arr[left];
-				arr[left] = arr[right];
-				arr[right] = tmp;
-				left++;
-				right--;
-			}
+			tmp = arr[i];
+			arr[i] = arr[i + 1];
+			arr[i + 1] = tmp;
+			i = 0;
 		}
-		quick_sort(arr, first, right);
-		quick_sort(arr, left, last);
 	}
-	return ;
 }
 
 void	check_sort(t_list *my_list)
@@ -241,7 +228,7 @@ void	check_sort(t_list *my_list)
 		printf("Заглушка список отсортирован.\n");
 }
 
-void	assign_order(int *arr, t_list *my_list)
+void	assign_order(int argc, int *arr, t_list *my_list)
 {
 	int	i;
 	t_stack	*a;
@@ -250,7 +237,7 @@ void	assign_order(int *arr, t_list *my_list)
 	a = my_list->a;
 	while (a->next != my_list->a)
 	{
-		while (arr[i])
+		while (i < (argc - 1))
 		{
 			if (arr[i] == a->value)
 			{
@@ -265,7 +252,7 @@ void	assign_order(int *arr, t_list *my_list)
 	i = 0;
 	if (a->next == my_list->a)
 	{
-		while (arr[i])
+		while (argc - 1)
 		{
 			if (arr[i] == a->value)
 			{
@@ -280,26 +267,25 @@ void	assign_order(int *arr, t_list *my_list)
 
 void	get_position(int argc, t_list *my_list)
 {
-	int	array[argc - 1];
+	int	*arr;
 	int	i;
 	t_stack	*p;
 
 	i = 0;
 	p = my_list->a;
+	arr = (int *)malloc((argc - 1) * sizeof(int));
 	while (p->next != my_list->a)
 	{
-		array[i] = p->value;
-		printf("%d\n",array[i]);
+		arr[i] = p->value;
 		p = p->next;
 		i++;
 	}
 	if (p->next == my_list->a)
-		array[i] = p->value;
-	printf("%d\n",array[i]);
-	i++;
-	quick_sort(array, 0, argc - 1);
-	assign_order(array, my_list);
+		arr[i] = p->value;
+	quick_sort(arr, (argc - 1));
+	assign_order(argc, arr, my_list);
 	print_list_order(my_list->a);
+	free(arr);
 }
 
 void	ft_sa(t_stack *a)
@@ -307,12 +293,12 @@ void	ft_sa(t_stack *a)
 	int	tmp_value;
 	int	tmp_order;
 	int	tmp_flag;
-	t_stack	*tmp;
+	//t_stack	*tmp;
 	
 	tmp_value = a->value;
 	tmp_order = a->order;
 	tmp_flag = a->flag;
-	tmp = a->next;
+	//tmp = a->next;
 	a->value = a->next->value;
 	a->order = a->next->order;
 	a->flag = a->next->flag;
@@ -320,7 +306,7 @@ void	ft_sa(t_stack *a)
 	a->next->value = tmp_value;
 	a->next->order = tmp_value;
 	a->next->flag = tmp_value;
-	a->next->next = tmp;
+	//a->next->next = tmp;
 	write(1, "sa\n", 3);
 }
 
@@ -345,10 +331,23 @@ void	ft_rr(t_stack *a, t_stack *b)
 
 void	ft_rra(t_stack *a)
 {
-	while (a->next != a)
+	int		j;
+	int		i;
+	t_stack	*p;
+
+	j = 0;
+	i = 0;
+	p = a;
+	while (p->next != a)
+	{
+		p = p->next;
+		j++;
+	}
+	while (i < j)
+	{
 		a = a->next;
-	if (a->next == a)
-		a = a->next;
+		i++;
+	}
 	write(1, "rra\n", 4);
 }
 
@@ -356,8 +355,7 @@ void	ft_rrb(t_stack *b)
 {
 	while (b->next != b)
 		b = b->next;
-	if (b->next == b)
-		b = b->next;
+	b = b->next;
 	write(1, "rrb\n", 4);
 }
 
@@ -371,20 +369,29 @@ void	ft_rrr(t_stack *a, t_stack *b)
 void	micro_algorithm(t_stack *a)
 {
 	if (a->value > a->next->value)
-		ft_sa(a);	
+		ft_sa(a);
 }
 
 void	mini_algorithm(t_stack *a)
 {
-	printf("I am here");
-	if (a->next->value < a->value && a->next->value > a->next->next->value)
+	if (a->value < a->next->value
+		&& a->value < a->next->next->value)
+		ft_sa(a), ft_ra(a);
+	else if (a->value > a->next->value
+		&& a->value > a->next->next->value)
 	{
-		ft_sa(a);
-		printf("%d\n", a->value);
-		ft_rra(a);
+		if (a->next->value < a->next->next->value)
+			ft_ra(a);
+		else
+			ft_sa(a), ft_rra(a);
 	}
-	if (a->value < a->next->value && a->value > a->next->next->value)
-		ft_rra(a);
+	else
+	{
+		if (a->next->value < a->next->next->value)
+			ft_sa(a);
+		else
+			ft_rra(a);
+	}
 }
 
 void	algorithm(int argc, t_list *my_list)
@@ -393,15 +400,9 @@ void	algorithm(int argc, t_list *my_list)
 
 	i = argc - 1;
 	if (i == 2)
-	{
-		printf("I am here");
 		micro_algorithm(my_list->a);
-	}
 	if (i == 3)
-	{
-		printf("I am here");
 		mini_algorithm(my_list->a);
-	}
 		
 	// else if (i == 4)
 	// 	medium_algorithm(my_list);
@@ -421,14 +422,14 @@ void	push_swap(int argc, char **argv)
 	check_duplicates(my_list);
 	check_sort(my_list);
 	get_position(argc, my_list);
-	//algorithm(argc, my_list);
+	algorithm(argc, my_list);
 }
 
-// int	main(int argc, char **argv)
-int	main()
+int	main(int argc, char **argv)
+// int	main()
 {
-	char *argv[7] = {"x", "6", "5", "4", "-10", "200", "1"};
-	// if (argc > 2)
-		push_swap(7, argv);
+	//char *argv[4] = {"x", "6", "5", "4"};
+	if (argc > 2)
+		push_swap(argc, argv);
 	return (0);
 }
