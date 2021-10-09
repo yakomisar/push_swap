@@ -6,7 +6,7 @@
 /*   By: jmacmill <jmacmill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/04 20:12:12 by jmacmill          #+#    #+#             */
-/*   Updated: 2021/10/09 19:39:57 by jmacmill         ###   ########.fr       */
+/*   Updated: 2021/10/09 20:11:03 by jmacmill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -645,10 +645,11 @@ void	above_algorithm(t_list *my_list)
 	}
 	mini_algorithm(my_list);
 	finish_five(my_list);
-	printf("List a:\n");
-	print_list_order(my_list->a);
-	printf("List b:\n");
-	print_list_order(my_list->b);
+}
+
+void	big_deal(t_list *my_list)
+{
+	
 }
 
 void	algorithm(int argc, t_list *my_list)
@@ -664,8 +665,8 @@ void	algorithm(int argc, t_list *my_list)
 		medium_algorithm(my_list);
 	else if (i == 5)
 		above_algorithm(my_list);
-	// else if (i > 5)
-	// 	big_deal(my_list);
+	else if (i > 5)
+		big_deal(my_list);
 }
 
 void	push_swap(int argc, char **argv)
