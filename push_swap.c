@@ -6,7 +6,7 @@
 /*   By: jmacmill <jmacmill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/04 20:12:12 by jmacmill          #+#    #+#             */
-/*   Updated: 2021/10/09 17:42:26 by jmacmill         ###   ########.fr       */
+/*   Updated: 2021/10/09 19:39:57 by jmacmill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -513,34 +513,63 @@ void	ft_pb(t_list *my_list)
 	write(1, "pb\n", 3);
 }
 
+void	ft_swap(t_list *my_list)
+{
+	int	swap_v;
+	int	swap_p;
+	int	swap_f;
+
+	swap_v = my_list->a->next->value;
+	my_list->a->next->value = my_list->a->value;
+	my_list->a->value = swap_v;
+	swap_p = my_list->a->next->order;
+	my_list->a->next->order = my_list->a->order;
+	my_list->a->order = swap_p;
+	swap_f = my_list->a->next->flag;
+	my_list->a->next->flag = my_list->a->flag;
+	my_list->a->flag = swap_f;
+}
+
 t_stack	*init_stack_a_for_pa(t_list *my_list, int num)
 {
-	t_stack	*tmp;
-	void	*p;
-	int	tmp_value;
+	// t_stack	*tmp;
+	// void	*p;
+	// int	tmp_value;
 
-	if (my_list->a == NULL)
-	{
-		my_list->a = (t_stack *)malloc(sizeof(t_stack));
-		my_list->a->value = num;
-		my_list->a->order = 0;
-		my_list->a->flag = 0;
-		my_list->a->next = my_list->a;
-		return (my_list->a);
-	}
-	else
-	{
-		tmp = (t_stack *)malloc(sizeof(t_stack));
-		p = my_list->a->next;
-		my_list->a->next = tmp;
-		tmp->value = num;
-		tmp->order = 0;
-		tmp->flag = 0;
-		tmp->next = p;
-		tmp_value = my_list->a->value;
-		my_list->a->value = my_list->a->next->value;
-		my_list->a->next->value = tmp_value;
-	}
+	// if (my_list->a == NULL)
+	// {
+	// 	my_list->a = (t_stack *)malloc(sizeof(t_stack));
+	// 	my_list->a->value = num;
+	// 	my_list->a->order = 0;
+	// 	my_list->a->flag = 0;
+	// 	my_list->a->next = my_list->a;
+	// 	return (my_list->a);
+	// }
+	// else
+	// {
+	// 	tmp = (t_stack *)malloc(sizeof(t_stack));
+	// 	p = my_list->a->next;
+	// 	my_list->a->next = tmp;
+	// 	tmp->value = num;
+	// 	tmp->order = my_list->b->order;
+	// 	tmp->flag = my_list->b->flag;
+	// 	tmp->next = p;
+	// 	tmp_value = my_list->a->value;
+	// 	my_list->a->value = my_list->a->next->value;
+	// 	my_list->a->next->value = tmp_value;
+	// }
+	t_stack	*temp;
+	t_stack	*p;
+
+	num = 0;
+	temp = (t_stack *)malloc(sizeof(t_stack));
+	p = my_list->a->next;
+	my_list->a->next = temp;
+	temp->value = my_list->b->value;
+	temp->order = my_list->b->order;
+	temp->flag = my_list->b->flag;
+	temp->next = p;
+	ft_swap(my_list);
 	return (my_list->a);
 }
 
@@ -572,26 +601,15 @@ void	medium_algorithm(t_list *my_list)
 			tmp = my_list->a;
 		}
 	}
-	// printf("sorting out\n");
-	// print_list(my_list->a);
-	// printf("\nsorted\n");
-	// print_list(my_list->b);
 	mini_algorithm(my_list);
-	// print_list(my_list->a);
 	ft_pa(my_list);
-	// print_list(my_list->a);
-	//print_list_order(my_list->b);
 }
 
 void	finish_five(t_list *my_list)
 {
-	printf("List 0 b:\n");
-	print_list_order(my_list->b);
 	if (my_list->b->value < my_list->b->next->value)
 	{
 		ft_sb(my_list);
-		printf("List 1 b:\n");
-		print_list_order(my_list->b);
 		ft_pa(my_list);
 		ft_pa(my_list);
 	}
@@ -613,11 +631,7 @@ void	above_algorithm(t_list *my_list)
 	{
 		if (tmp->order == 0 || tmp->order == 1)
 		{
-			printf("List init 0 b:\n");
-			print_list_order(my_list->b);
 			ft_pb(my_list);
-			printf("List init 1 b:\n");
-			print_list_order(my_list->b);
 			tmp = my_list->a;
 			counter++;
 			if (counter == 2)
