@@ -66,7 +66,7 @@ int	ft_ischar(char *str)
 	return (0);
 }
 
-t_stack	*init_stack(t_list *my_list, int num)
+t_stack	*init_stack_a(t_list *my_list, int num)
 {
 	t_stack	*tmp;
 	void	*p;
@@ -91,6 +91,33 @@ t_stack	*init_stack(t_list *my_list, int num)
 		tmp->next = p;
 	}
 	return (my_list->a);
+}
+
+t_stack	*init_stack_b(t_list *my_list, int num)
+{
+	t_stack	*tmp;
+	void	*p;
+
+	if (my_list->b == NULL)
+	{
+		my_list->b = (t_stack *)malloc(sizeof(t_stack));
+		my_list->b->value = num;
+		my_list->b->order = 0;
+		my_list->b->flag = 0;
+		my_list->b->next = my_list->b;
+		return (my_list->b);
+	}
+	else
+	{
+		tmp = (t_stack *)malloc(sizeof(t_stack));
+		p = my_list->b->next;
+		my_list->b->next = tmp;
+		tmp->value = num;
+		tmp->order = 0;
+		tmp->flag = 0;
+		tmp->next = p;
+	}
+	return (my_list->b);
 }
 
 void	print_list(t_stack *a)
@@ -141,7 +168,7 @@ void	check_errors(int argc, char **argv, t_list *my_list)
 			get_error();
 		if (!ft_ischar(argv[i]))
 			get_error();
-		my_list->a = init_stack(my_list, num);
+		my_list->a = init_stack_a(my_list, num);
 		i--;
 		if (i == 0)
 			my_list->a = my_list->a->next;
@@ -288,48 +315,48 @@ void	get_position(int argc, t_list *my_list)
 	free(arr);
 }
 
-void	ft_sa(t_stack *a)
+void	ft_sa(t_list *my_list)
 {
 	int	tmp_value;
 	int	tmp_order;
 	int	tmp_flag;
-	//t_stack	*tmp;
+	t_stack	*tmp;
 	
-	tmp_value = a->value;
-	tmp_order = a->order;
-	tmp_flag = a->flag;
-	//tmp = a->next;
-	a->value = a->next->value;
-	a->order = a->next->order;
-	a->flag = a->next->flag;
-	a->next = a->next->next;
-	a->next->value = tmp_value;
-	a->next->order = tmp_value;
-	a->next->flag = tmp_value;
-	//a->next->next = tmp;
+	tmp_value = my_list->a->value;
+	tmp_order = my_list->a->order;
+	tmp_flag = my_list->a->flag;
+	tmp = my_list->a->next;
+	my_list->a->value = my_list->a->next->value;
+	my_list->a->order = my_list->a->next->order;
+	my_list->a->flag = my_list->a->next->flag;
+	my_list->a->next = my_list->a->next->next;
+	my_list->a->next->value = tmp_value;
+	my_list->a->next->order = tmp_value;
+	my_list->a->next->flag = tmp_value;
+	my_list->a->next->next = tmp;
 	write(1, "sa\n", 3);
 }
 
-void	ft_ra(t_stack *a)
+void	ft_ra(t_list *my_list)
 {
-	a = a->next;
+	my_list->a = my_list->a->next;
 	write(1, "ra\n", 3);
 }
 
-void	ft_rb(t_stack *b)
+void	ft_rb(t_list *my_list)
 {
-	b = b->next;
+	my_list->b = my_list->b->next;
 	write(1, "rb\n", 3);
 }
 
-void	ft_rr(t_stack *a, t_stack *b)
+void	ft_rr(t_list *my_list)
 {
-	ft_ra(a);
-	ft_rb(b);
+	ft_ra(my_list);
+	ft_rb(my_list);
 	write(1, "rr\n", 3);
 }
 
-void	ft_rra(t_stack *a)
+void	ft_rra(t_list *my_list)
 {
 	int		j;
 	int		i;
@@ -337,61 +364,109 @@ void	ft_rra(t_stack *a)
 
 	j = 0;
 	i = 0;
-	p = a;
-	while (p->next != a)
+	p = my_list->a;
+	while (p->next != my_list->a)
 	{
 		p = p->next;
 		j++;
 	}
 	while (i < j)
 	{
-		a = a->next;
+		my_list->a= my_list->a->next;
 		i++;
 	}
 	write(1, "rra\n", 4);
 }
 
-void	ft_rrb(t_stack *b)
+void	ft_rrb(t_list *my_list)
 {
-	while (b->next != b)
-		b = b->next;
-	b = b->next;
+	while (my_list->b->next != my_list->b)
+		my_list->b = my_list->b->next;
+	my_list->b = my_list->b->next;
 	write(1, "rrb\n", 4);
 }
 
-void	ft_rrr(t_stack *a, t_stack *b)
+void	ft_rrr(t_list *my_list)
 {
-	ft_rra(a);
-	ft_rrb(b);
+	ft_rra(my_list);
+	ft_rrb(my_list);
 	write(1, "rrr\n", 4);
 }
 
-void	micro_algorithm(t_stack *a)
+void	micro_algorithm(t_list *my_list)
 {
-	if (a->value > a->next->value)
-		ft_sa(a);
+	if (my_list->a->value > my_list->a->next->value)
+		ft_sa(my_list);
 }
 
-void	mini_algorithm(t_stack *a)
+void	mini_algorithm(t_list *my_list)
 {
+	t_stack	*a;
+
+	a = my_list->a;	
 	if (a->value < a->next->value
 		&& a->value < a->next->next->value)
-		ft_sa(a), ft_ra(a);
+		ft_sa(my_list), ft_ra(my_list);
 	else if (a->value > a->next->value
 		&& a->value > a->next->next->value)
 	{
 		if (a->next->value < a->next->next->value)
-			ft_ra(a);
+			ft_ra(my_list);
 		else
-			ft_sa(a), ft_rra(a);
+			ft_sa(my_list), ft_rra(my_list);
 	}
 	else
 	{
 		if (a->next->value < a->next->next->value)
-			ft_sa(a);
+			ft_sa(my_list);
 		else
-			ft_rra(a);
+			ft_rra(my_list);
 	}
+}
+
+void	*deletelem(t_stack *lst)
+{
+	t_stack *temp;
+
+	temp = lst;
+	while (temp->next != lst)
+		temp = temp->next;
+	temp->next = lst->next;
+	free(lst);
+	return(temp);
+}
+
+void	ft_pb(t_list *my_list)
+{
+	my_list->b = init_stack_b(my_list, my_list->a->value);
+	my_list->a = deletelem(my_list->a);
+}
+
+void	medium_algorithm(t_list *my_list)
+{
+	t_stack	*tmp;
+
+	tmp = my_list->a;
+	while (tmp->next != my_list->a)
+	{
+		if (tmp->order == 0)
+		{
+			ft_pb(my_list);
+			tmp = my_list->a;
+			break ;
+		}
+		else
+		{
+			ft_ra(my_list);
+			tmp = my_list->a;
+		}
+	}
+	printf("sorting out\n");
+	print_list(my_list->a);
+	printf("sorted\n");
+	mini_algorithm(my_list);
+	print_list(my_list->a);
+	//print_list_order(my_list->b);
 }
 
 void	algorithm(int argc, t_list *my_list)
@@ -400,12 +475,11 @@ void	algorithm(int argc, t_list *my_list)
 
 	i = argc - 1;
 	if (i == 2)
-		micro_algorithm(my_list->a);
+		micro_algorithm(my_list);
 	if (i == 3)
-		mini_algorithm(my_list->a);
-		
-	// else if (i == 4)
-	// 	medium_algorithm(my_list);
+		mini_algorithm(my_list);
+	else if (i == 4)
+		medium_algorithm(my_list);
 	// else if (i == 5)
 	// 	above_algorithm(my_list);
 	// else if (i > 5)
