@@ -6,7 +6,7 @@
 /*   By: jmacmill <jmacmill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/04 20:12:12 by jmacmill          #+#    #+#             */
-/*   Updated: 2021/10/08 22:30:20 by jmacmill         ###   ########.fr       */
+/*   Updated: 2021/10/09 16:30:49 by jmacmill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,7 @@ t_stack	*init_stack_a(t_list *my_list, int num)
 		tmp->order = 0;
 		tmp->flag = 0;
 		tmp->next = p;
+		
 	}
 	return (my_list->a);
 }
@@ -125,6 +126,7 @@ void	print_list(t_stack *a)
 	t_stack *head;
 
 	head = a;
+	
 	while (head->next != a)
 	{
 		printf("value: %d\n", head->value);
@@ -325,7 +327,31 @@ void	ft_sa(t_list *my_list)
 	tmp_value = my_list->a->value;
 	tmp_order = my_list->a->order;
 	tmp_flag = my_list->a->flag;
+	my_list->a->value = my_list->a->next->value;
+	my_list->a->order = my_list->a->next->order;
+	my_list->a->flag = my_list->a->next->flag;
+	my_list->a->next->value = tmp_value;
+	my_list->a->next->order = tmp_order;
+	my_list->a->next->flag = tmp_flag;
+
 	tmp = my_list->a->next;
+	// my_list->a->next = my_list->a->next->next;
+	my_list->a->next = my_list->a;
+	my_list->a->next->next = tmp;
+	write(1, "sa\n", 3);
+}
+
+void	ft_sa_hidden(t_list *my_list)
+{
+	int	tmp_value;
+	int	tmp_order;
+	int	tmp_flag;
+	//t_stack	*tmp;
+	
+	tmp_value = my_list->a->value;
+	tmp_order = my_list->a->order;
+	tmp_flag = my_list->a->flag;
+	//tmp = my_list->a->next;
 	my_list->a->value = my_list->a->next->value;
 	my_list->a->order = my_list->a->next->order;
 	my_list->a->flag = my_list->a->next->flag;
@@ -333,8 +359,7 @@ void	ft_sa(t_list *my_list)
 	my_list->a->next->value = tmp_value;
 	my_list->a->next->order = tmp_value;
 	my_list->a->next->flag = tmp_value;
-	my_list->a->next->next = tmp;
-	write(1, "sa\n", 3);
+	//my_list->a->next->next = tmp;
 }
 
 void	ft_ra(t_list *my_list)
@@ -403,24 +428,41 @@ void	mini_algorithm(t_list *my_list)
 {
 	t_stack	*a;
 
+	// exit (0);
 	a = my_list->a;	
 	if (a->value < a->next->value
 		&& a->value < a->next->next->value)
+	{
+		//printf("1\n");
 		ft_sa(my_list), ft_ra(my_list);
+	}
 	else if (a->value > a->next->value
 		&& a->value > a->next->next->value)
 	{
 		if (a->next->value < a->next->next->value)
+		{
+			//printf("2\n");
 			ft_ra(my_list);
+		}
 		else
+		{
+			//printf("3\n");
 			ft_sa(my_list), ft_rra(my_list);
+		}
 	}
 	else
 	{
 		if (a->next->value < a->next->next->value)
+		{
+			printf("4\n");
+			// print_list(my_list->a);
 			ft_sa(my_list);
+		}
 		else
+		{
+			printf("5\n");
 			ft_rra(my_list);
+		}
 	}
 }
 
@@ -440,6 +482,70 @@ void	ft_pb(t_list *my_list)
 {
 	my_list->b = init_stack_b(my_list, my_list->a->value);
 	my_list->a = deletelem(my_list->a);
+	if (my_list->a != NULL)
+		my_list->a = my_list->a->next;
+	write(1, "pb\n", 3);
+}
+
+t_stack	*init_stack_a_for_pa(t_list *my_list, int num)
+{
+	t_stack	*tmp;
+	void	*p;
+	int	tmp_value;
+	// int	tmp_order;
+	// int	tmp_flag;
+	
+
+	if (my_list->a == NULL)
+	{
+		my_list->a = (t_stack *)malloc(sizeof(t_stack));
+		my_list->a->value = num;
+		my_list->a->order = 0;
+		my_list->a->flag = 0;
+		my_list->a->next = my_list->a;
+		return (my_list->a);
+	}
+	else
+	{
+		tmp = (t_stack *)malloc(sizeof(t_stack));
+		p = my_list->a->next;
+		my_list->a->next = tmp;
+		tmp->value = num;
+		tmp->order = 0;
+		tmp->flag = 0;
+		tmp->next = p;
+		// ft_sa(my_list);
+		tmp_value = my_list->a->value;
+		my_list->a->value = my_list->a->next->value;
+		my_list->a->next->value = tmp_value;
+		// tmp_order = my_list->a->order;
+		// tmp_flag = my_list->a->flag;
+		// tmp = my_list->a->next;
+		// my_list->a->value = my_list->a->next->value;
+		// my_list->a->order = my_list->a->next->order;
+		// my_list->a->flag = my_list->a->next->flag;
+		// my_list->a->next = my_list->a->next->next;
+		// my_list->a->next->value = tmp_value;
+		// my_list->a->next->order = tmp_value;
+		// my_list->a->next->flag = tmp_value;
+		// my_list->a->next->next = tmp;
+		
+	}
+	return (my_list->a);
+}
+
+void	ft_pa(t_list *my_list)
+{
+	// while(my_list->a->next != my_list->a)
+	// 	my_list->a = my_list->a->next;
+	// print_list(my_list->a);
+	// printf("\n\n\n\n");
+	my_list->a = init_stack_a_for_pa(my_list, my_list->b->value);
+	my_list->b = deletelem(my_list->b);
+	// ft_sa_hidden(my_list);
+	if (my_list->b != NULL)
+		my_list->b = my_list->b->next;
+	write(1, "pa\n", 3);
 }
 
 void	medium_algorithm(t_list *my_list)
@@ -461,11 +567,14 @@ void	medium_algorithm(t_list *my_list)
 			tmp = my_list->a;
 		}
 	}
-	printf("sorting out\n");
-	print_list(my_list->a);
-	printf("sorted\n");
+	// printf("sorting out\n");
+	// print_list(my_list->a);
+	// printf("\nsorted\n");
+	// print_list(my_list->b);
 	mini_algorithm(my_list);
-	print_list(my_list->a);
+	// print_list(my_list->a);
+	ft_pa(my_list);
+	// print_list(my_list->a);
 	//print_list_order(my_list->b);
 }
 
