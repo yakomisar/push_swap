@@ -6,7 +6,7 @@
 /*   By: jmacmill <jmacmill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/04 20:12:12 by jmacmill          #+#    #+#             */
-/*   Updated: 2021/10/09 20:11:03 by jmacmill         ###   ########.fr       */
+/*   Updated: 2021/10/10 12:59:25 by jmacmill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,6 +94,23 @@ t_stack	*init_stack_a(t_list *my_list, int num)
 	return (my_list->a);
 }
 
+void	ft_swap_b(t_list *my_list)
+{
+	int	swap_v;
+	int	swap_p;
+	int	swap_f;
+
+	swap_v = my_list->b->next->value;
+	my_list->b->next->value = my_list->b->value;
+	my_list->b->value = swap_v;
+	swap_p = my_list->b->next->order;
+	my_list->b->next->order = my_list->b->order;
+	my_list->b->order = swap_p;
+	swap_f = my_list->b->next->flag;
+	my_list->b->next->flag = my_list->b->flag;
+	my_list->b->flag = swap_f;
+}
+
 t_stack	*init_stack_b(t_list *my_list)
 {
 	t_stack	*tmp;
@@ -117,6 +134,7 @@ t_stack	*init_stack_b(t_list *my_list)
 		tmp->order = my_list->a->order;
 		tmp->flag = my_list->a->flag;
 		tmp->next = p;
+		ft_swap_b(my_list);
 	}
 	return (my_list->b);
 }
@@ -513,7 +531,7 @@ void	ft_pb(t_list *my_list)
 	write(1, "pb\n", 3);
 }
 
-void	ft_swap(t_list *my_list)
+void	ft_swap_a(t_list *my_list)
 {
 	int	swap_v;
 	int	swap_p;
@@ -569,7 +587,7 @@ t_stack	*init_stack_a_for_pa(t_list *my_list, int num)
 	temp->order = my_list->b->order;
 	temp->flag = my_list->b->flag;
 	temp->next = p;
-	ft_swap(my_list);
+	ft_swap_a(my_list);
 	return (my_list->a);
 }
 
@@ -643,13 +661,66 @@ void	above_algorithm(t_list *my_list)
 			tmp = my_list->a;
 		}
 	}
+	printf("Stack A\n");
+	print_list_order(my_list->a);
+	printf("Stack B\n");
+	print_list_order(my_list->b);
 	mini_algorithm(my_list);
 	finish_five(my_list);
 }
 
-void	big_deal(t_list *my_list)
+t_support	*init_support(int max)
 {
+	t_support	*tmp;
 	
+	tmp = (t_support *)malloc(sizeof(t_support));
+	tmp->flag = 0;
+	tmp->max = max;
+	tmp->next = 0;
+	tmp->mid = (max / 2) + tmp->next;
+	return (tmp);
+}
+
+t_stack	*find_stop(t_list *my_list)
+{
+	t_stack *tmp;
+	
+	tmp = my_list->a;
+	while (tmp->next != my_list->a)
+		tmp = tmp->next;
+	return (tmp);
+}
+
+void	ft_start(t_list *my_list, t_support *support)
+{
+	t_stack	*tmp;
+	t_stack	*stop;
+	int		i;
+	
+	tmp = my_list->a;
+	stop = find_stop(my_list);
+	i = 0;
+	while (tmp != stop)
+	{
+		tmp = my_list->a;
+		if (tmp->order <= support->mid)
+			ft_pb(my_list);
+		else
+			ft_ra(my_list);
+		i++;
+	}
+}
+
+void	big_deal(int max, t_list *my_list)
+{
+	t_support	*support;
+	
+	support = init_support(max);
+	ft_start(my_list, support);
+	printf("Stack A\n");
+	print_list_order(my_list->a);
+	printf("Stack B\n");
+	print_list_order(my_list->b);
 }
 
 void	algorithm(int argc, t_list *my_list)
@@ -666,7 +737,7 @@ void	algorithm(int argc, t_list *my_list)
 	else if (i == 5)
 		above_algorithm(my_list);
 	else if (i > 5)
-		big_deal(my_list);
+		big_deal(i, my_list);
 }
 
 void	push_swap(int argc, char **argv)

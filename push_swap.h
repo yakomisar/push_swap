@@ -19,4 +19,12 @@ typedef struct s_list
 	t_stack	*b;
 }				t_list;
 
+typedef struct s_support
+{
+	int	next;
+	int	mid;
+	int	max;
+	int	flag;
+}	t_support;
+
 #endif
