@@ -6,7 +6,7 @@
 /*   By: jmacmill <jmacmill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/04 20:12:12 by jmacmill          #+#    #+#             */
-/*   Updated: 2021/10/10 16:23:31 by jmacmill         ###   ########.fr       */
+/*   Updated: 2021/10/10 20:11:55 by jmacmill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,9 +41,52 @@ int	ft_atoi(const char *str)
 	return (result * sign);
 }
 
-void	get_error(void)
+void	free_list_a(t_list *list)
+{
+   t_stack	*tmp;
+
+	while (list->a != NULL)
+	{
+		tmp = list->a;
+		list->a = list->a->next;
+		free(tmp);
+    }
+}
+
+void	free_list_b(t_list *list)
+{
+   t_stack	*tmp;
+
+	while (list->b != NULL)
+	{
+		tmp = list->b;
+		list->b = list->b->next;
+		free(tmp);
+    }
+}
+
+void	free_all(t_list *my_list)
+{
+	if (my_list->a)
+		free_list_a(my_list);
+	if (my_list->b)
+		free_list_b(my_list);
+	if (my_list)
+		free(my_list);
+}
+
+void	get_error_wo(t_list *my_list)
+{
+	int i;
+	//free_all(my_list);
+	i = my_list->a->value;
+	exit(0);
+}
+
+void	get_error(t_list *my_list)
 {
 	write(2, "Error\n", 6);
+	free_all(my_list);
 	exit(0);
 }
 
@@ -179,16 +222,16 @@ void	check_errors(int argc, char **argv, t_list *my_list)
 	{
 		num = ft_atoi(argv[i]);
 		if (num > 2147483647 || num < -2147483648)
-			get_error();
+			get_error(my_list);
 		if (num < 0 || argv[i][0] == '+')
 		{
 			if (!ft_isdigit(argv[i][1]))
-				get_error();
+				get_error(my_list);
 		}
 		else if (!ft_isdigit(*argv[i]))
-			get_error();
+			get_error(my_list);
 		if (!ft_ischar(argv[i]))
-			get_error();
+			get_error(my_list);
 		my_list->a = init_stack_a(my_list, num);
 		i--;
 		if (i == 0)
@@ -227,14 +270,14 @@ void	check_duplicates(t_list *my_list)
 	while (tmp->next != my_list->a)
 	{
 		if (ft_check(my_list->a, tmp->value, len))
-			get_error();
+			get_error(my_list);
 		tmp = tmp->next;
 		len++;
 	}
 	if (tmp->next == my_list->a)
 	{
 		if (ft_check(my_list->a, tmp->value, len))
-			get_error();
+			get_error(my_list);
 	}
 }
 
@@ -272,7 +315,7 @@ void	check_sort(t_list *my_list)
 		tmp = tmp->next;
 	}
 	if (is_sorted)
-		printf("Заглушка список отсортирован.\n");
+		get_error_wo(my_list);
 }
 
 void	assign_order(int argc, int *arr, t_list *my_list)
@@ -533,32 +576,7 @@ t_stack	*init_stack_a_for_pa(t_list *my_list, int num)
 {
 	t_stack	*temp;
 	t_stack	*p;
-	// t_stack	*tmp;
-	// void	*p;
-	// int	tmp_value;
 
-	// if (my_list->a == NULL)
-	// {
-	// 	my_list->a = (t_stack *)malloc(sizeof(t_stack));
-	// 	my_list->a->value = num;
-	// 	my_list->a->order = 0;
-	// 	my_list->a->flag = 0;
-	// 	my_list->a->next = my_list->a;
-	// 	return (my_list->a);
-	// }
-	// else
-	// {
-	// 	tmp = (t_stack *)malloc(sizeof(t_stack));
-	// 	p = my_list->a->next;
-	// 	my_list->a->next = tmp;
-	// 	tmp->value = num;
-	// 	tmp->order = my_list->b->order;
-	// 	tmp->flag = my_list->b->flag;
-	// 	tmp->next = p;
-	// 	tmp_value = my_list->a->value;
-	// 	my_list->a->value = my_list->a->next->value;
-	// 	my_list->a->next->value = tmp_value;
-	// }
 	num = 0;
 	temp = (t_stack *)malloc(sizeof(t_stack));
 	p = my_list->a->next;
@@ -748,6 +766,20 @@ void	send_values_to_a(t_list *my_list, t_support *support)
 	}
 }
 
+int	is_sort(t_list *my_list)
+{
+	t_stack	*tmp;
+
+	tmp = my_list->a;
+	while (tmp->next != my_list->a)
+	{
+		if (tmp->order > tmp->next->order)
+			return (0);
+		tmp = tmp->next;
+	}
+	return (1);
+}
+
 void	ft_sort_b(t_list *my_list, t_support *support)
 {
 	t_stack	*tmp;
@@ -757,11 +789,8 @@ void	ft_sort_b(t_list *my_list, t_support *support)
 	if (!tmp)
 		return ;	
 	stop = find_stop_b(my_list);
-	printf("stop for b: %d\n", stop->value);
 	support->max = support->mid;
-	printf("max b: %d\n", support->max);
 	support->mid = ((support->max - support->next) / 2) + support->next;
-	printf("mid for b: %d\n", support->mid);
 	support->flag++;
 	while (tmp != stop)
 	{
@@ -775,6 +804,42 @@ void	ft_sort_b(t_list *my_list, t_support *support)
 		send_values_to_a(my_list, support);
 }
 
+void	send_values_to_b(t_list *my_list, t_support *support)
+{
+	t_stack	*tmp;
+	int		flag;
+
+	tmp = my_list->a;
+	flag = tmp->flag;
+	if (tmp->order == support->next)
+	{
+		ft_ra(my_list);
+		support->next++;
+	}
+	else if (tmp->flag == flag)
+		ft_pb(my_list);
+}
+
+void	ft_sort_a(t_list *my_list, t_support *support)
+{
+	t_stack	*tmp;
+	t_stack	*stop;
+	int		flag;
+
+	tmp = my_list->a;
+	stop = find_stop_a(my_list);
+	flag = tmp->flag;
+	while (tmp != stop)
+	{
+		tmp = my_list->a;
+		if (tmp->flag != flag)
+			return ;
+		send_values_to_b(my_list, support);
+	}	
+	tmp = my_list->a;
+	send_values_to_b(my_list, support);
+}
+
 void	big_deal(int max, t_list *my_list)
 {
 	t_support	*support;
@@ -784,19 +849,11 @@ void	big_deal(int max, t_list *my_list)
 	while (!ft_finish(my_list))
 	{
 		support->mid = ft_max_b(my_list);
-		printf("current mid : %d\n", support->mid);
 		while (my_list->b != NULL)
 			ft_sort_b(my_list, support);
-		printf("Stack A\n");
-		print_list_order(my_list->a);
-		printf("Stack B\n");
-		print_list_order(my_list->b);
-		exit(1);
+		if (!is_sort(my_list))
+			ft_sort_a(my_list, support);
 	}
-	printf("Stack A\n");
-	print_list_order(my_list->a);
-	printf("Stack B\n");
-	print_list_order(my_list->b);
 	free(support);
 }
 
@@ -815,6 +872,10 @@ void	algorithm(int argc, t_list *my_list)
 		above_algorithm(my_list);
 	else if (i > 5)
 		big_deal(i, my_list);
+	// printf("Stack A\n");
+	// print_list_order(my_list->a);
+	// printf("Stack B\n");
+	// print_list_order(my_list->b);
 }
 
 void	push_swap(int argc, char **argv)
@@ -828,12 +889,11 @@ void	push_swap(int argc, char **argv)
 	check_sort(my_list);
 	get_position(argc, my_list);
 	algorithm(argc, my_list);
+	free_all(my_list);
 }
 
 int	main(int argc, char **argv)
-// int	main()
 {
-	//char *argv[4] = {"x", "6", "5", "4"};
 	if (argc > 2)
 		push_swap(argc, argv);
 	return (0);
