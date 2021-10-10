@@ -6,7 +6,7 @@
 /*   By: jmacmill <jmacmill@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/04 20:12:12 by jmacmill          #+#    #+#             */
-/*   Updated: 2021/10/10 14:13:53 by jmacmill         ###   ########.fr       */
+/*   Updated: 2021/10/10 16:23:31 by jmacmill         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -657,7 +657,7 @@ t_support	*init_support(int max)
 	return (tmp);
 }
 
-t_stack	*find_stop(t_list *my_list)
+t_stack	*find_stop_a(t_list *my_list)
 {
 	t_stack	*tmp;
 
@@ -667,15 +667,23 @@ t_stack	*find_stop(t_list *my_list)
 	return (tmp);
 }
 
+t_stack	*find_stop_b(t_list *my_list)
+{
+	t_stack	*tmp;
+
+	tmp = my_list->b;
+	while (tmp->next != my_list->b)
+		tmp = tmp->next;
+	return (tmp);
+}
+
 void	ft_start(t_list *my_list, t_support *support)
 {
 	t_stack	*tmp;
 	t_stack	*stop;
-	int		i;
 
 	tmp = my_list->a;
-	stop = find_stop(my_list);
-	i = 0;
+	stop = find_stop_a(my_list);
 	while (tmp != stop)
 	{
 		tmp = my_list->a;
@@ -683,7 +691,6 @@ void	ft_start(t_list *my_list, t_support *support)
 			ft_pb(my_list);
 		else
 			ft_ra(my_list);
-		i++;
 	}
 }
 
@@ -721,9 +728,51 @@ int	ft_max_b(t_list *my_list)
 	return (max);	
 }
 
+void	send_values_to_a(t_list *my_list, t_support *support)
+{
+	t_stack	*tmp;
+
+	tmp = my_list->b;
+	if (tmp->order == support->next)
+	{
+		support->next++;
+		tmp->flag = support->flag;
+		ft_pa(my_list);
+		ft_ra(my_list);
+		return ;
+	}
+	else if (tmp->order >= support->mid)
+	{
+		tmp->flag = support->flag;
+		ft_pa(my_list);
+	}
+}
+
 void	ft_sort_b(t_list *my_list, t_support *support)
 {
-	
+	t_stack	*tmp;
+	t_stack	*stop;
+
+	tmp = my_list->b;
+	if (!tmp)
+		return ;	
+	stop = find_stop_b(my_list);
+	printf("stop for b: %d\n", stop->value);
+	support->max = support->mid;
+	printf("max b: %d\n", support->max);
+	support->mid = ((support->max - support->next) / 2) + support->next;
+	printf("mid for b: %d\n", support->mid);
+	support->flag++;
+	while (tmp != stop)
+	{
+		tmp = my_list->b;
+		if (tmp->order == support->next || tmp->order >= support->mid)
+			send_values_to_a(my_list, support);
+		else
+			ft_rb(my_list);
+	}	
+	if (my_list->b)
+		send_values_to_a(my_list, support);
 }
 
 void	big_deal(int max, t_list *my_list)
@@ -738,6 +787,8 @@ void	big_deal(int max, t_list *my_list)
 		printf("current mid : %d\n", support->mid);
 		while (my_list->b != NULL)
 			ft_sort_b(my_list, support);
+		printf("Stack A\n");
+		print_list_order(my_list->a);
 		printf("Stack B\n");
 		print_list_order(my_list->b);
 		exit(1);
