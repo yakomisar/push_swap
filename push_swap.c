@@ -41,45 +41,110 @@ int	ft_atoi(const char *str)
 	return (result * sign);
 }
 
-void	free_list_a(t_list *list)
+int	stack_counter(t_stack *stack)
 {
-   t_stack	*tmp;
+	t_stack	*p;
+	int		i;
 
-	while (list->a != NULL)
+	i = 1;
+	p = stack;
+	while (p->next != stack)
 	{
-		tmp = list->a;
-		list->a = list->a->next;
-		free(tmp);
-    }
+		p = p->next;
+		i++;
+	}
+	return (i);
 }
 
-void	free_list_b(t_list *list)
+void	fresh_stack_a(t_list *my_list)
 {
-   t_stack	*tmp;
+	t_stack	*p;
 
-	while (list->b != NULL)
+	p = my_list->a;
+	if (stack_counter(p) > 1)
 	{
-		tmp = list->b;
-		list->b = list->b->next;
-		free(tmp);
-    }
+		while (my_list->a)
+		{
+			while (p->next != my_list->a)
+				p = p->next;
+			p->next = (my_list->a)->next;
+			free(my_list->a);
+			my_list->a = p;
+			if (p->next == my_list->a)
+			{
+				free(p);
+				break ;
+			}
+		}
+	}
+	else
+		free(p);
+	my_list->a = NULL;
 }
+
+void	fresh_stack_b(t_list *my_list)
+{
+	t_stack	*p;
+
+	p = my_list->b;
+	if (stack_counter(p) > 1)
+	{
+		while (my_list->b)
+		{
+			while (p->next != my_list->b)
+				p = p->next;
+			p->next = (my_list->b)->next;
+			free(my_list->b);
+			my_list->b = p;
+			if (p->next == my_list->b)
+			{
+				free(p);
+				break ;
+			}
+		}
+	}
+	else
+		free(p);
+	my_list->b = NULL;
+}
+
+// void	free_list_a(t_list *list)
+// {
+//    t_stack	*tmp;
+
+// 	while (list->a != NULL)
+// 	{
+// 		tmp = list->a;
+// 		list->a = list->a->next;
+// 		free(tmp);
+//     }
+// }
+
+// void	free_list_b(t_list *list)
+// {
+//    t_stack	*tmp;
+
+// 	while (list->b != NULL)
+// 	{
+// 		tmp = list->b;
+// 		list->b = list->b->next;
+// 		free(tmp);
+//     }
+// }
 
 void	free_all(t_list *my_list)
 {
 	if (my_list->a)
-		free_list_a(my_list);
+		fresh_stack_a(my_list);
 	if (my_list->b)
-		free_list_b(my_list);
+		fresh_stack_b(my_list);
 	if (my_list)
 		free(my_list);
 }
 
 void	get_error_wo(t_list *my_list)
 {
-	int i;
-	//free_all(my_list);
-	i = my_list->a->value;
+	free_all(my_list);
 	exit(0);
 }
 
@@ -205,10 +270,10 @@ void	print_list_order(t_stack *a)
 	{
 		while (head->next != a)
 		{
-			printf("value: %d  -  order: %d\n", head->value, head->order);
+			printf("value: %d  -  order: %d -  flag: %d\n", head->value, head->order, head->flag);
 			head = head->next;
 		}
-		printf("value: %d  -  order: %d\n", head->value, head->order);
+		printf("value: %d  -  order: %d -  flag: %d\n", head->value, head->order, head->flag);
 	}
 }
 
@@ -374,7 +439,6 @@ void	get_position(int argc, t_list *my_list)
 		arr[i] = p->value;
 	quick_sort(arr, (argc - 1));
 	assign_order(argc, arr, my_list);
-	print_list_order(my_list->a);
 	free(arr);
 }
 
@@ -715,10 +779,14 @@ void	ft_start(t_list *my_list, t_support *support)
 int	ft_finish(t_list *my_list)
 {
 	t_stack	*tmp;
+	t_stack *b_tmp;
 
-	tmp = my_list->a;
-	if (my_list->b != NULL)
+	b_tmp = my_list->b;
+	if (my_list->b)
+	{
 		return (0);
+	}
+	tmp = my_list->a;
 	while (tmp->next != my_list->a)
 	{
 		if (tmp->order > tmp->next->order)
@@ -735,15 +803,18 @@ int	ft_max_b(t_list *my_list)
 
 	max = 0;
 	tmp = my_list->b;
-	while (tmp->next != my_list->b)
+	if (my_list->b != NULL)
 	{
+		while (tmp->next != my_list->b)
+		{
+			if (tmp->order > max)
+				max = tmp->order;
+			tmp = tmp->next;
+		}
 		if (tmp->order > max)
 			max = tmp->order;
-		tmp = tmp->next;
 	}
-	if (tmp->order > max)
-		max = tmp->order;
-	return (max);	
+	return (max);
 }
 
 void	send_values_to_a(t_list *my_list, t_support *support)
@@ -771,7 +842,7 @@ int	is_sort(t_list *my_list)
 	t_stack	*tmp;
 
 	tmp = my_list->a;
-	while (tmp->next != my_list->a)
+	while (tmp->next->next != my_list->a)
 	{
 		if (tmp->order > tmp->next->order)
 			return (0);
@@ -795,13 +866,19 @@ void	ft_sort_b(t_list *my_list, t_support *support)
 	while (tmp != stop)
 	{
 		tmp = my_list->b;
-		if (tmp->order == support->next || tmp->order >= support->mid)
-			send_values_to_a(my_list, support);
-		else
+		if (!(tmp->order == support->next || tmp->order >= support->mid))
+		{
 			ft_rb(my_list);
-	}	
+		}
+		else
+		{
+			send_values_to_a(my_list, support);
+		}
+	}
 	if (my_list->b)
+	{
 		send_values_to_a(my_list, support);
+	}
 }
 
 void	send_values_to_b(t_list *my_list, t_support *support)
@@ -813,11 +890,13 @@ void	send_values_to_b(t_list *my_list, t_support *support)
 	flag = tmp->flag;
 	if (tmp->order == support->next)
 	{
-		ft_ra(my_list);
 		support->next++;
+		ft_ra(my_list);
 	}
 	else if (tmp->flag == flag)
+	{
 		ft_pb(my_list);
+	}
 }
 
 void	ft_sort_a(t_list *my_list, t_support *support)
@@ -843,16 +922,22 @@ void	ft_sort_a(t_list *my_list, t_support *support)
 void	big_deal(int max, t_list *my_list)
 {
 	t_support	*support;
+	int			i;
 
+	i = 0;
 	support = init_support(max);
 	ft_start(my_list, support);
 	while (!ft_finish(my_list))
 	{
 		support->mid = ft_max_b(my_list);
 		while (my_list->b != NULL)
+		{
 			ft_sort_b(my_list, support);
+		}
 		if (!is_sort(my_list))
+		{
 			ft_sort_a(my_list, support);
+		}
 	}
 	free(support);
 }
@@ -872,10 +957,6 @@ void	algorithm(int argc, t_list *my_list)
 		above_algorithm(my_list);
 	else if (i > 5)
 		big_deal(i, my_list);
-	// printf("Stack A\n");
-	// print_list_order(my_list->a);
-	// printf("Stack B\n");
-	// print_list_order(my_list->b);
 }
 
 void	push_swap(int argc, char **argv)
