@@ -4,7 +4,21 @@ CC = gcc
 CFLAGS = -Wall -Wextra -Werror
 RM = rm -f
 
-SRC_S = push_swap.c
+SRC_S = push_swap.c \
+		includes/a_operations.c \
+		includes/above_algorithm.c \
+		includes/additions.c \
+		includes/b_operations.c \
+		includes/check.c \
+		includes/find_sort.c \
+		includes/free.c \
+		includes/init.c \
+		includes/main_algo.c \
+		includes/mediumalgorithm.c \
+		includes/microalgorithm.c \
+		includes/minialgorithm.c \
+		includes/preparations.c \
+		includes/pushes.c
 
 OBJ_S = $(SRC_S:%.c=%.o)
 
